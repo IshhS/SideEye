@@ -1,6 +1,7 @@
 import './style.css' // Keep your styles
 import * as THREE from 'three';
-import anime from 'animejs/lib/anime.es.js'; // Using the ES module version for safety
+import anime from 'animejs/lib/anime.es.js';
+import { initHome } from './Home.js'; // <--- IMPORT THE NEW PAGE
 
 // --- 1. INJECT HTML (Replace Vite Boilerplate) ---
 document.querySelector('#app').innerHTML = `
@@ -20,9 +21,10 @@ document.querySelector('#app').innerHTML = `
   </div>
 `;
 
-// --- 2. SELECT ELEMENTS (Now that they exist in DOM) ---
+// --- 2. SELECT ELEMENTS ---
 const tickerElement = document.getElementById('roast-ticker');
 const startBtn = document.getElementById('start-btn');
+const titleElements = document.querySelectorAll('.side-eye-title .letter');
 
 // --- 3. CONFIGURATION & DATA ---
 const ROASTS = [
@@ -40,7 +42,7 @@ const ROASTS = [
 
 // --- 4. ANIMATION LOGIC ---
 
-// A. The Entrance (Letters dropping in)
+// A. The Entrance
 function animateEntrance() {
   anime.timeline({loop: false})
     .add({
@@ -64,58 +66,68 @@ function animateEntrance() {
 const getRandomRoast = () => ROASTS[Math.floor(Math.random() * ROASTS.length)];
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// C. The Rapid Shuffle (The Matrix/Glitch Effect)
+// C. The Rapid Shuffle Loop
+// We need a variable to stop the loop when we leave the page
+let isLandingPageActive = true; 
+
 async function rapidShuffle(duration, speed) {
   const endTime = Date.now() + duration;
-  
-  while (Date.now() < endTime) {
+  while (Date.now() < endTime && isLandingPageActive) {
     tickerElement.innerText = getRandomRoast();
-    // 20% chance to glitch to white text
     tickerElement.style.color = Math.random() > 0.8 ? '#ffffff' : '#ff0055';
     await wait(speed);
   }
-  // Reset color to Pink/Red at end of shuffle
-  tickerElement.style.color = '#ff0055';
+  if(isLandingPageActive) tickerElement.style.color = '#ff0055';
 }
 
-// D. The Master Ticker Loop (Your specific pattern)
 async function runTickerCycle() {
-  while (true) {
-    // 1. Rapid Change (1 second)
+  while (isLandingPageActive) {
     await rapidShuffle(1000, 50); 
+    if(!isLandingPageActive) break;
     
-    // 2. STOP for 2 seconds (Readability)
     tickerElement.innerText = getRandomRoast(); 
     await wait(2000);
+    if(!isLandingPageActive) break;
 
-    // 3. Rapid Change (4 seconds - Chaos Mode)
     await rapidShuffle(4000, 50);
+    if(!isLandingPageActive) break;
 
-    // 4. STOP for 2 seconds
     tickerElement.innerText = getRandomRoast();
     await wait(2000);
-    
-    // Loop repeats...
   }
 }
 
-// --- 5. INTERACTION ---
-startBtn.addEventListener('click', () => {
+// --- 5. INTERACTION (THE TRANSITION) ---
+startBtn.addEventListener('click', async () => {
     console.log("User attempted to start.");
-    
-    // Anti-UX: Shake head "No"
-    anime({
+
+    // STEP A: The Anti-UX Shake (First they think it failed)
+    await anime({
         targets: '#start-btn',
-        translateX: [0, 10, -10, 0], 
-        duration: 400,
+        translateX: [0, 10, -10, 10, -10, 0], // Shake head "No"
+        duration: 500,
         easing: 'easeInOutSine'
-    });
+    }).finished;
     
-    tickerElement.innerText = "ACCESS DENIED (JK)";
+    tickerElement.innerText = "FINE. ENTERING...";
     tickerElement.style.color = '#ff0055';
+    startBtn.innerText = "Loading Regret...";
+
+    // STEP B: The Exit Animation (Fade out elements)
+    await anime({
+        targets: ['.center-stage', '#roast-ticker'],
+        opacity: 0,
+        scale: 0.9,
+        duration: 800,
+        easing: 'easeInExpo',
+        delay: 500 // Wait a moment for them to read "Fine"
+    }).finished;
+
+    // STEP C: Switch to Home Page
+    isLandingPageActive = false; // Stop the ticker loop
+    initHome(); // Load the new file logic
 });
 
 // --- 6. START EVERYTHING ---
-// We start immediately since we injected the HTML manually above
 animateEntrance();
 runTickerCycle();
