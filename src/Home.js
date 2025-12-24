@@ -1,5 +1,6 @@
 import anime from 'animejs/lib/anime.es.js';
-import { loadApp } from './app1.js'; // <--- IMPORT THE DESTINATION
+import { loadApp } from './app1.js';
+import { initBot } from './sarcasticBot.js'; // <--- IMPORT THE BOT
 
 // --- CONFIGURATION ---
 const QUESTIONS = [
@@ -21,14 +22,72 @@ let userSession = {
     roast: ""
 };
 
+// --- DYNAMIC ROAST ENGINE (For Custom Inputs) ---
+function generateDynamicRoast(inputText) {
+    const text = inputText.toLowerCase().trim();
+    
+    // 1. The "Lazy" Input (Short)
+    if (text.length < 4) {
+        return { 
+            identity: "MINIMALIST REBEL", 
+            roast: `You typed "${inputText}"? That was barely worth the CPU cycles.` 
+        };
+    }
+
+    // 2. The "Essay" Input (Long)
+    if (text.length > 25) {
+        return { 
+            identity: "THE NOVELIST", 
+            roast: "I'm not reading all that. Summarize your life better." 
+        };
+    }
+
+    // 3. Keyword: Confusion
+    if (text.includes("idk") || text.includes("know") || text.includes("help") || text.includes("what")) {
+        return { 
+            identity: "LOST TOURIST", 
+            roast: "It's a website, not a maze. Figure it out." 
+        };
+    }
+
+    // 4. Keyword: Aggression/Swearing
+    if (text.includes("fuck") || text.includes("shit") || text.includes("stupid") || text.includes("hate")) {
+        return { 
+            identity: "RAGE TYPIST", 
+            roast: "Anger management is down the hall. We don't care." 
+        };
+    }
+
+    // 5. Keyword: Developer/Testing
+    if (text.includes("test") || text.includes("bug") || text.includes("code") || text.includes("dev")) {
+        return { 
+            identity: "QA ENGINEER", 
+            roast: "Looking for bugs? Start with your own life choices." 
+        };
+    }
+
+    // 6. Default Fallback
+    return { 
+        identity: "THE ANOMALY", 
+        roast: "Too good for my buttons? Typical main character syndrome." 
+    };
+}
+
 // --- INIT ---
 export function initHome() {
     const app = document.querySelector('#app');
+    
+    // 1. Setup UI
     app.innerHTML = `
         <div class="home-container" style="padding: 50px; text-align: center;">
             <div id="quiz-layer"></div>
         </div>
     `;
+
+    // 2. ACTIVATE THE AI BOT
+    initBot(); 
+
+    // 3. Start Quiz
     renderQuestion(0);
 }
 
@@ -61,7 +120,7 @@ function renderQuestion(index) {
         .add({ targets: '.option-btn', opacity: [0, 1], translateX: [-20, 0], delay: anime.stagger(100), duration: 600, easing: 'easeOutExpo' })
         .add({ targets: '.custom-input-wrapper', opacity: [0, 1], translateY: [20, 0], duration: 800, easing: 'easeOutExpo' }, '-=200');
 
-    // Listeners
+    // Listener: Standard Buttons
     document.querySelectorAll('.option-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const idx = e.target.dataset.idx;
@@ -71,16 +130,24 @@ function renderQuestion(index) {
         });
     });
 
+    // Listener: Custom Input (With Advanced Logic)
     const handleCustomSubmit = () => {
         const input = document.getElementById('custom-answer');
-        if(input.value.trim().length > 0) {
-            userSession.identity = "THE ANOMALY";
-            userSession.roast = "Too good for buttons? Typical main character syndrome.";
+        const val = input.value.trim();
+        
+        if(val.length > 0) {
+            // CALL THE ROAST ENGINE
+            const result = generateDynamicRoast(val);
+            
+            userSession.identity = result.identity;
+            userSession.roast = result.roast;
+            
             transitionToNameInput();
         } else {
             anime({ targets: '#custom-answer', translateX: [0, 10, -10, 0], duration: 400, easing: 'easeInOutSine' });
         }
     };
+
     document.getElementById('submit-custom-btn').addEventListener('click', handleCustomSubmit);
     document.getElementById('custom-answer').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleCustomSubmit(); });
 }

@@ -1,7 +1,8 @@
 import './style.css' // Keep your styles
 import * as THREE from 'three';
 import anime from 'animejs/lib/anime.es.js';
-import { initHome } from './Home.js'; // <--- IMPORT THE NEW PAGE
+import { initHome } from './Home.js'; 
+import { initBot } from './sarcasticBot.js'; // <--- 1. IMPORT THE BOT
 
 // --- 1. INJECT HTML (Replace Vite Boilerplate) ---
 document.querySelector('#app').innerHTML = `
@@ -67,7 +68,6 @@ const getRandomRoast = () => ROASTS[Math.floor(Math.random() * ROASTS.length)];
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // C. The Rapid Shuffle Loop
-// We need a variable to stop the loop when we leave the page
 let isLandingPageActive = true; 
 
 async function rapidShuffle(duration, speed) {
@@ -123,9 +123,11 @@ startBtn.addEventListener('click', async () => {
         delay: 500 // Wait a moment for them to read "Fine"
     }).finished;
 
-    // STEP C: Switch to Home Page
+    // STEP C: Switch to Home Page & Initialize Bot
     isLandingPageActive = false; // Stop the ticker loop
-    initHome(); // Load the new file logic
+    
+    initHome(); // Load the new page
+    initBot();  // <--- 2. START THE ROAMING BOT HERE
 });
 
 // --- 6. START EVERYTHING ---
