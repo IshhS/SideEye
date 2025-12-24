@@ -1,96 +1,125 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  /* CORE PALETTE */
+  --bg-color: #0a0a0a;       /* Deep Void Black */
+  --text-color: #e0e0e0;     /* Off-white */
+  --accent-color: #ff0055;   /* Aggressive Neon Red/Pink */
+  --ticker-bg: #111111;      /* Slightly lighter black */
+  --font-mono: 'Courier New', Courier, monospace;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
   margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-mono);
+  overflow: hidden; /* Prevent scrolling initially */
+  height: 100vh;
+  width: 100vw;
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  flex-direction: column;
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
+/* --- 1. THE CHAOS TICKER --- */
+.ticker {
+  width: 100%;
+  height: 50px;
+  background: var(--ticker-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Typography */
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  
+  /* Border */
+  border-bottom: 1px solid #333;
+  
+  /* Positioning */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  user-select: none; /* Can't highlight the insults */
 }
 
-.card {
-  padding: 2em;
+/* --- 2. CENTER STAGE (Title + Button) --- */
+.center-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px; /* Space between title and button */
+  z-index: 10; /* Above background elements */
 }
 
-.read-the-docs {
-  color: #888;
+/* --- 3. THE TITLE (SideEye) --- */
+.side-eye-title {
+  font-family: var(--font-sans);
+  font-size: 6rem; /* HUGE */
+  font-weight: 900;
+  letter-spacing: -4px; /* Tight tracking */
+  margin: 0;
+  color: #ffffff;
+  position: relative;
+  line-height: 1;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+/* Each letter is a span for anime.js to grab */
+.letter {
+  display: inline-block;
+  transform-origin: bottom center;
+}
+
+/* --- 4. THE BUTTON (Anti-UX Style) --- */
+.sleek-btn {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 16px 48px;
+  
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  backdrop-filter: blur(5px);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+.sleek-btn:hover {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); /* Neon glow */
+  transform: scale(1.05);
+}
+
+.sleek-btn:active {
+  transform: scale(0.95);
+}
+
+/* --- RESPONSIVE TWEAKS --- */
+@media (max-width: 600px) {
+  .side-eye-title {
+    font-size: 3.5rem;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+  .ticker {
+    font-size: 0.7rem;
   }
 }
