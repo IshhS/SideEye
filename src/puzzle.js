@@ -2,18 +2,8 @@ import anime from 'animejs/lib/anime.es.js';
 
 // --- THE DEADLY PUZZLE BANK ---
 const PUZZLES = [
-    {
-        type: 'reverse_type',
-        question: "Type 'I regret my actions' ... but backwards.",
-        answer: "snoitca ym terger I",
-        hint: "Don't forget the spaces. Start with 's'."
-    },
-    {
-        type: 'hex_code',
-        question: "What is the Hex Code of this red text?",
-        answer: "#ff0055",
-        hint: "It's in the CSS. Starts with #ff..."
-    },
+    
+   
     {
         type: 'wait',
         question: "Patience Test: Wait for the button to turn GREEN.",
@@ -25,12 +15,7 @@ const PUZZLES = [
         question: "Catch me. (I fade when you get close)",
         special: true 
     },
-    {
-        type: 'math_binary',
-        question: "Convert binary '101010' to decimal.",
-        answer: "42",
-        hint: "The answer to life, the universe, and everything."
-    }
+   
 ];
 
 // --- MAIN FUNCTION ---

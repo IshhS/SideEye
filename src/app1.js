@@ -1,5 +1,6 @@
 import anime from 'animejs/lib/anime.es.js';
-import { startPuzzle } from './puzzle.js'; // <--- IMPORT PUZZLE
+import { startPuzzle } from './puzzle.js'; 
+import { startDeadlyGames } from './games.js'; 
 
 export function loadApp(userSession) {
     const app = document.querySelector('#app');
@@ -20,7 +21,8 @@ export function loadApp(userSession) {
             </p>
             
             <div style="width: 100%; max-width: 600px; margin: 0 auto; position: relative;">
-                <div id="interaction-box" style="background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 30px; border-radius: 8px; transition: all 0.3s;">
+                
+                <div id="interaction-box" style="background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 30px; border-radius: 8px; transition: all 0.3s; z-index: 10; position: relative;">
                     <p id="box-title" style="color: #ff0055; font-size: 0.8rem; text-align: center; margin-bottom: 20px; letter-spacing: 2px;">
                         [ SYSTEM READY: INITIATE CHAOS? ]
                     </p>
@@ -32,7 +34,22 @@ export function loadApp(userSession) {
                         STUPID. YOU HAVE TO CLICK YES.
                     </div>
                 </div>
-                
+
+                <div id="scene-cards-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; opacity: 0.4; filter: grayscale(1);">
+                    <div style="background: #111; border: 1px solid #333; padding: 10px; font-family: monospace; font-size: 0.8rem; color: #666;">
+                        SCENE 1<br><span style="color: #ff0055;">MANUAL LABOR</span>
+                    </div>
+                    <div style="background: #111; border: 1px solid #333; padding: 10px; font-family: monospace; font-size: 0.8rem; color: #666;">
+                        SCENE 2<br><span style="color: #ff0055;">GASLIGHT</span>
+                    </div>
+                    <div style="background: #111; border: 1px solid #333; padding: 10px; font-family: monospace; font-size: 0.8rem; color: #666;">
+                        SCENE 3<br><span style="color: #ff0055;">WAITING ROOM</span>
+                    </div>
+                    <div style="background: #111; border: 1px solid #333; padding: 10px; font-family: monospace; font-size: 0.8rem; color: #666;">
+                        SCENE 4<br><span style="color: #ff0055;">THE VERDICT</span>
+                    </div>
+                </div>
+
                 <button id="btn-fix" style="opacity: 0; pointer-events: none; margin-top: 20px; background: #fff; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer;">
                     I REGRET EVERYTHING. FIX IT.
                 </button>
@@ -49,6 +66,7 @@ export function loadApp(userSession) {
     const btnFix = document.getElementById('btn-fix');
     const interactionBox = document.getElementById('interaction-box');
     const errorLabel = document.getElementById('error-label');
+    const sceneCards = document.getElementById('scene-cards-container');
 
     // --- LOGIC: NO (Roast) ---
     btnNo.addEventListener('click', () => {
@@ -56,35 +74,67 @@ export function loadApp(userSession) {
         anime({ targets: errorLabel, opacity: [0, 1], scale: [0.5, 1], rotate: '-5deg', duration: 400, easing: 'easeOutElastic(1, .5)' });
     });
 
-    // --- LOGIC: YES (Chaos + Enable Fix) ---
+    // --- LOGIC: YES (Start Puzzle -> Then Deadly Games) ---
     btnYes.addEventListener('click', () => {
         errorLabel.style.opacity = 0;
+        document.getElementById('btn-container').innerHTML = `<p style="color: #00ff88; font-family: monospace;">GLITCH INITIATED...</p>`;
         
-        // Disable Yes/No
-        document.getElementById('btn-container').innerHTML = `<p style="color: #00ff88;">SYSTEM REVERSED.</p>`;
-        
-        // Flip the Screen
+        // Flip Screen
         anime({ targets: '#app', scaleX: -1, duration: 1000, easing: 'easeInOutExpo' });
 
-        // Show Fix Button (Delayed)
-        setTimeout(() => {
-            btnFix.style.pointerEvents = 'all';
-            anime({ targets: '#btn-fix', opacity: 1, translateY: [10, 0], duration: 500 });
-        }, 1500);
-    });
+        // Highlight Scene Cards
+        anime({ targets: sceneCards, opacity: 1, filter: 'grayscale(0)', duration: 1000 });
 
-    // --- LOGIC: FIX (Trigger Puzzle) ---
-    btnFix.addEventListener('click', () => {
-        console.log("Starting puzzle...");
-        
-        // TRIGGER THE PUZZLE FROM PUZZLE.JS
-        startPuzzle(() => {
-            // THIS RUNS ONLY IF PUZZLE IS SOLVED
-            anime({ targets: '#app', scaleX: 1, duration: 1000, easing: 'easeInOutExpo' });
+        setTimeout(() => {
+            console.log("Starting puzzle...");
             
-            // Update UI to show success
-            document.getElementById('box-title').innerText = "[ SYSTEM RESTORED ]";
-            btnFix.style.display = 'none';
-        });
+            // 1. TRIGGER PUZZLE
+            startPuzzle(() => {
+                
+                // 2. Restore Screen
+                anime({ targets: '#app', scaleX: 1, duration: 1000, easing: 'easeInOutExpo' });
+                document.getElementById('btn-container').innerHTML = `<p style="color: #ff0055;">SYSTEM RESTORED. BUT...</p>`;
+
+                // 3. START DEADLY GAMES
+                setTimeout(() => {
+                    startDeadlyGames(() => {
+                        
+                        // --- 4. NEW ENDING: RESET BUTTON ---
+                        document.getElementById('box-title').innerText = "[ GAME OVER ]";
+                        const container = document.getElementById('btn-container');
+                        container.innerHTML = ''; // Clear text
+
+                        // Create Reset Button
+                        const resetBtn = document.createElement('button');
+                        resetBtn.innerText = "SUFFER AGAIN";
+                        resetBtn.style.cssText = `
+                            padding: 15px 30px; 
+                            background: transparent; 
+                            border: 1px solid #00ff88; 
+                            color: #00ff88; 
+                            cursor: pointer; 
+                            font-family: monospace; 
+                            font-size: 1.2rem; 
+                            transition: 0.2s;
+                        `;
+                        
+                        // Hover Effect
+                        resetBtn.onmouseenter = () => resetBtn.style.background = "rgba(0, 255, 136, 0.1)";
+                        resetBtn.onmouseleave = () => resetBtn.style.background = "transparent";
+
+                        // RESTART LOGIC
+                        resetBtn.onclick = () => {
+                            loadApp(userSession); // Reloads the app logic
+                        };
+
+                        container.appendChild(resetBtn);
+                        
+                        // Reset Scene Cards opacity
+                        anime({ targets: sceneCards, opacity: 0.4, filter: 'grayscale(1)', duration: 500 });
+
+                    });
+                }, 1500);
+            });
+        }, 800);
     });
 }
